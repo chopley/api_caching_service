@@ -1,0 +1,37 @@
+version: '3.2'
+services:
+  fast_api:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+  redis:
+    container_name: redis-cont
+    image: "redis:alpine"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_REPLICATION_MODE=master
+    ports:
+      - "6379:6379"
+    volumes:
+      # save redisearch data to your current working directory
+      - ./redis-data:/data
+    command:
+      # Save if 100 keys are added in every 10 seconds
+      - "--save 10 100"
+      # Set password
+      - "--requirepass ubuntu"
+  redisinsight: # redis db visualization dashboard
+    container_name: redisinsight-cont
+    image: redislabs/redisinsight
+    ports:
+      - ${REDIS_INSIGHT_PORT}:${REDIS_INSIGHT_PORT}
+    volumes:
+      - redisinsight:/db
+
+volumes:
+  redis-data:
+  redisinsight:
