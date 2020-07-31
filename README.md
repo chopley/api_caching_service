@@ -15,4 +15,7 @@ WEBSHRINKER_SECRET_KEY = "YYYYYYYYYYYYYYYYYYYY"
 
 docker-compose build
 docker-compose up -d
+
+cd test_webshrinker
+python3 test_webshrinker.py https://memeburn.com/2020/07/surgeons-pose-in-bikinis-on-social-media-after-study-draws-ire/
 ```
