@@ -27,7 +27,7 @@ def get_webshrinker(url_request,key,hash):
     import json
 
     url_request = "https://api.webshrinker.com/categories/v3/" + url_request + "?key=" + key + "&hash=" + hash  
-    response = requests.get(url_request)
+    response = s.get(url_request)
 
     status_code = response.status_code
     data = response.json()
@@ -37,6 +37,7 @@ def get_webshrinker(url_request,key,hash):
         print(json.dumps(data, indent=4, sort_keys=True))
     elif status_code == 202:
         # The website is being visited and the categories will be updated shortly
+        s.cache.delete_url(url_request)
         print(json.dumps(data, indent=4, sort_keys=True))
     elif status_code == 400:
         # Bad or malformed HTTP request
@@ -57,12 +58,13 @@ def get_webshrinker(url_request,key,hash):
 
 app = FastAPI()
 import redis
+from requests_cache import CachedSession
 
 r = redis.StrictRedis(host=REDIS_IP_ADDRESS,
         port=REDIS_PORT,
         password=REDIS_USERNAME)
 
-requests_cache.install_cache('webshrinker_cache', backend='redis', expire_after=CACHE_EXPIRE_AFTER, connection = r )
+s = CachedSession('webshrinker_cache', backend='redis', expire_after=CACHE_EXPIRE_AFTER, connection = r )
 
 @app.get("/webshrinker/categories/v3/{url_request}")
 def read_item(url_request: str, key: str, hash: str):
